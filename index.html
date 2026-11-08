@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SASR | Blackhawk Rescue Mission 5</title>
+    <style>
+        :root {
+            --black: #050505;
+            --dark-gray: #121212;
+            --surface: #1e1e1e;
+            --olive: #4b5320;
+            --olive-hover: #5c6628;
+            --khaki: #c2b280;
+            --text-light: #f4f4f4;
+            --text-muted: #a0a0a0;
+            --radius: 16px;
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--black);
+            color: var(--text-light);
+            scroll-behavior: smooth;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: 0.8s all ease;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Навигация */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(18, 18, 18, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        nav .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+        nav .logo img {
+            height: 40px;
+            width: auto;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+            margin: 0;
+            padding: 0;
+        }
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: var(--transition);
+        }
+        nav a:hover { color: var(--khaki); }
+
+        /* Главный экран (Hero) */
+        .hero {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(rgba(5, 5, 5, 0.75), rgba(5, 5, 5, 0.9)), url('hero-bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            padding: 20px;
+            position: relative;
+        }
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+        
+        /* Крупный чёткий PNG-логотип */
+        .hero-logo {
+            width: 220px; /* Увеличенный размер */
+            height: auto;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.9));
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .hero h4 {
+            color: var(--khaki);
+            margin: 0 0 10px 0;
+            letter-spacing: 4px;
+            font-size: 14px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .hero h1 {
+            font-size: 64px;
+            margin: 0 0 10px 0;
+            color: white;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-shadow: 0 5px 20px rgba(0,0,0,0.9);
+        }
+        .hero-subtitle {
+            font-size: 16px;
+            color: #ccc;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 35px;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--olive);
+            color: white;
+            padding: 16px 38px;
+            text-decoration: none;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            border-radius: 30px;
+            transition: var(--transition);
+            border: 2px solid var(--olive);
+            box-shadow: 0 10px 25px rgba(75, 83, 32, 0.35);
+        }
+        .btn-primary:hover { 
+            background-color: transparent; 
+            color: var(--khaki);
+            border-color: var(--khaki);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(194, 178, 128, 0.2);
+        }
+
+        /* Секция О нас */
+        section { padding: 120px 10%; position: relative; }
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        .about-images {
+            position: relative;
+            height: 450px;
+        }
+        .about-img-1, .about-img-2 {
+            position: absolute;
+            border-radius: var(--radius);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        .about-img-1 { width: 70%; height: 300px; top: 0; left: 0; z-index: 2; }
+        .about-img-2 { width: 65%; height: 280px; bottom: 0; right: 0; z-index: 1; border: 4px solid var(--black); }
+        .about-images:hover .about-img-1 { transform: scale(1.03) translateY(-10px); }
+        .about-images:hover .about-img-2 { transform: scale(1.03) translateX(10px); }
+
+        .about-text h3 { color: var(--khaki); font-size: 22px; margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 8px;}
+        .about-text p { color: var(--text-muted); margin-bottom: 30px; font-size: 15px; }
+
+        ul.custom-list { list-style: none; padding: 0; margin-bottom: 30px;}
+        ul.custom-list li {
+            margin-bottom: 12px;
+            padding-left: 25px;
+            position: relative;
+            color: #ddd;
+            font-size: 15px;
+        }
+        ul.custom-list li::before {
+            content: '■';
+            color: var(--olive);
+            position: absolute;
+            left: 0;
+            font-size: 12px;
+            top: 2px;
+        }
+
+        /* Раздел Рекрутинг */
+        .section-header { text-align: center; margin-bottom: 70px; }
+        .section-header h2 { font-size: 36px; color: white; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px; }
+        .section-header .line { width: 60px; height: 4px; background: var(--khaki); margin: 0 auto; border-radius: 2px; }
+        .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .step-card { background: var(--surface); padding: 35px 25px; border-radius: var(--radius); border-bottom: 4px solid transparent; transition: var(--transition); position: relative; }
+        .step-card:hover { transform: translateY(-8px); border-bottom: 4px solid var(--khaki); background: #252525; }
+        .step-num { font-size: 44px; font-weight: 900; color: rgba(194, 178, 128, 0.12); position: absolute; top: 10px; right: 20px; }
+        .step-card h4 { color: white; font-size: 17px; margin-bottom: 10px; }
+
+        /* Тренировки */
+        .training-banner { background: linear-gradient(rgba(75, 83, 32, 0.85), rgba(5, 5, 5, 0.95)), url('training-bg.jpg') center/cover; border-radius: var(--radius); padding: 60px; }
+        .training-banner h3 { color: white; font-size: 28px; margin-top: 0; }
+        .training-banner ul { list-style: none; padding: 0; }
+        .training-banner li { padding-left: 30px; position: relative; margin-bottom: 12px; color: #eee; }
+        .training-banner li::before { content: '✔'; color: var(--khaki); position: absolute; left: 0; font-weight: bold; }
+
+        /* Экипировка */
+        .equipment-section { background: var(--dark-gray); }
+        .eq-container { display: flex; gap: 40px; background: var(--black); border-radius: var(--radius); overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+        .eq-img { flex: 1; background: url('roles-bg.jpg') center/cover; min-height: 400px; }
+        .eq-content { flex: 1; padding: 45px; }
+        .tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 25px; }
+        .tag { background: rgba(194, 178, 128, 0.1); color: var(--khaki); padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid rgba(194, 178, 128, 0.3); }
+
+        footer { background: #000; padding: 50px 20px; text-align: center; border-top: 1px solid #222; }
+        footer img { width: 70px; margin-bottom: 15px; opacity: 0.7; }
+        footer p { color: #666; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">
+            <img src="logo.png" alt="SASR Logo">
+            <span><span style="color: var(--khaki);">SASR</span> MILSIM</span>
+        </div>
+        <ul>
+            <li><a href="#about">About</a></li>
+            <li><a href="#recruitment">Recruitment</a></li>
+            <li><a href="#training">Training</a></li>
+            <li><a href="#equipment">Equipment</a></li>
+        </ul>
+    </nav>
+
+    <!-- Главный экран с увеличенным логотипом и лаконичным текстом -->
+    <header class="hero">
+        <div class="hero-content reveal">
+            <img src="logo.png" alt="SASR Logo" class="hero-logo">
+            <h4>Australian Special Air Service Regiment</h4>
+            <h1>WHO DARES WINS</h1>
+            <div class="hero-subtitle">Элитное подразделение спецназа в BRM5</div>
+            <a href="https://discord.gg/TSt9qTApU" target="_blank" class="btn-primary">ПОДАТЬ ЗАЯВКУ В DISCORD</a>
+        </div>
+    </header>
+
+        <!-- О нас, Наш спецназ, Цели и Ценности -->
+        <section id="about">
+            <div class="about-grid">
+                <div class="about-text reveal">
+                    <h4 style="color: var(--olive); letter-spacing: 2px; font-size: 13px;">ОСНОВАНО 19 ИЮЛЯ 2026</h4>
+                    
+                    <h3>2.1. WHO WE ARE</h3>
+                    <p>Мы — имитация элитного подразделения спецназа Австралии (SASR) в рамках игры BRM5. Наша главная задача — проведение сложных тактических операций с максимальным уровнем дисциплины и командного взаимодействия.</p>
+                    
+                    <h3>2.2. OUR MISSION (НАШИ ЦЕЛИ)</h3>
+                    <ul class="custom-list">
+                        <li>Special Reconnaissance (Специальная разведка).</li>
+                        <li>Counter Terrorism (Борьба с терроризмом).</li>
+                        <li>Direct Action (Прямые действия).</li>
+                        <li>VIP-Safety (Охрана высокопоставленных лиц).</li>
+                        <li>Training of allies (Обучение союзников).</li>
+                    </ul>
+    
+                    <h3>2.3. OUR VALUES (НАШИ ЦЕННОСТИ)</h3>
+                    <ul class="custom-list">
+                        <li><strong>Discipline</strong> — Дисциплина и порядок.</li>
+                        <li><strong>Integrity</strong> — Честность и порядочность.</li>
+                        <li><strong>Professionalism</strong> — Высокий уровень профессионализма.</li>
+                        <li><strong>Teamwork</strong> — Сплоченная командная работа.</li>
+                        <li><strong>Commitment</strong> — Преданность общему делу.</li>
+                    </ul>
+                </div>
+                
+                <div class="about-images reveal">
+                    <img src="about-1.jpg" alt="SASR Team" class="about-img-1">
+                    <img src="about-2.jpg" alt="Helicopter Ops" class="about-img-2">
+                </div>
+            </div>
+        </section>
+
+        
+
+    <!-- Рекрутинг -->
+    <section id="recruitment" style="background: var(--dark-gray);">
+        <div class="section-header reveal">
+            <h2>Путь Оперативника</h2>
+            <div class="line"></div>
+        </div>
+        <div class="steps-grid">
+            <div class="step-card reveal">
+                <div class="step-num">01</div>
+                <h4>JOIN DISCORD</h4>
+                <p style="color: var(--text-muted);">Присоединяйтесь к нашему серверу и ознакомьтесь с уставом.</p>
+            </div>
+            <div class="step-card reveal">
+                <div class="step-num">02</div>
+                <h4>APPLICATION</h4>
+                <p style="color: var(--text-muted);">Заполните форму заявки. Командование рассмотрит её в кратчайшие сроки.</p>
+            </div>
+            <div class="step-card reveal">
+                <div class="step-num">03</div>
+                <h4>TRAINING</h4>
+                <p style="color: var(--text-muted);">Пройдите базовый курс молодого бойца (КМБ) под руководством инструкторов.</p>
+            </div>
+            <div class="step-card reveal">
+                <div class="step-num">04</div>
+                <h4>GRADUATION</h4>
+                <p style="color: var(--text-muted);">Получите статус оперативника, красный берет и выберите специализацию.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Тренировки -->
+    <section id="training">
+        <div class="reveal training-banner">
+            <div>
+                <h4 style="color: var(--khaki); letter-spacing: 2px;">BASIC MILITARY TRAINING</h4>
+                <h3>Курс Молодого Бойца</h3>
+                <p style="color: #ccc; margin-bottom: 25px;">Каждый рекрут обязан пройти базовую подготовку, где проверяются его навыки, адекватность и умение работать в команде.</p>
+                <ul>
+                    <li>Практические занятия на полигоне.</li>
+                    <li>Изучение тактики CQB и работы в лесу.</li>
+                    <li>Основы радиообмена и субординации.</li>
+                    <li>Итоговая аттестация и допуск к операциям.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+        <!-- Экипировка и Роли с интерактивной выезжающей карточкой -->
+        <section id="equipment" class="equipment-section">
+            <div class="section-header reveal">
+                <h2>Экипировка и Роли</h2>
+                <div class="line"></div>
+            </div>
+            
+            <div class="eq-container reveal">
+                <div class="eq-img"></div>
+                <div class="eq-content">
+                    <h3 style="color: white; margin-top: 0;">Регламент Вооружения & OPSEC</h3>
+                    <p style="color: var(--text-muted); font-size: 14px;">
+                        В целях соблюдения субординации и внутренней безопасности (OPSEC), детализированные сборки прицелов, глушителей SOCOM и модульных обвесов доступно открываются бойцам строго после прохождения КМБ.
+                    </p>
+                    
+                    <h4 style="color: var(--khaki); margin-top: 25px; margin-bottom: 8px;">ШТАБНОЙ НАБОР РЕКРУТА (КМБ)</h4>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">
+                        Обязательный минимум вооружения бойца вне зависимости от ситуации: <strong>SA58 (Full stock)</strong> и <strong>USP Tactical</strong>.
+                    </p>
+                    
+                    <!-- Кнопка вызова интерактивной карточки формы -->
+                    <button onclick="toggleUniformDrawer()" class="btn-secondary" style="cursor: pointer; margin-bottom: 25px;">
+                        🪖 ПОСМОТРЕТЬ УНИФОРМУ КМБ (СИНИЙ БЕРЕТ)
+                    </button>
+    
+                    <h4 style="color: var(--khaki); margin-top: 15px; margin-bottom: 10px;">ДОСТУПНЫЕ КВАЛИФИКАЦИИ</h4>
+                    <div class="tags">
+                        <span class="tag">Стрелок</span>
+                        <span class="tag">Медик</span>
+                        <span class="tag">Связист</span>
+                        <span class="tag">Гранатометчик</span>
+                        <span class="tag">Пулеметчик</span>
+                        <span class="tag">Снайпер / Марксман</span>
+                        <span class="tag">Пилот Авиации</span>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Выезжающая справа-налево панель с формой рекрута -->
+            <div id="uniformDrawer" class="uniform-drawer">
+                <div class="drawer-header">
+                    <h3 style="margin: 0; color: var(--khaki);">ШТАБНАЯ УНИФОРМА КМБ</h3>
+                    <span class="close-btn" onclick="toggleUniformDrawer()">&times;</span>
+                </div>
+                <div class="drawer-body">
+                    <img src="kmb-uniform.jpg" alt="Униформа КМБ" class="drawer-img">
+                    <p style="color: #ccc; font-size: 13px; margin-top: 15px;">
+                        Солдат — военнослужащий с рядовым званием, выполняющий приказы командиров и защищающий интересы подразделения.
+                    </p>
+                    <h4 style="color: white; margin-top: 15px; margin-bottom: 5px;">1. Экипировка & Аксессуары:</h4>
+                    <ul class="custom-list" style="font-size: 13px; margin-bottom: 15px;">
+                        <li><strong>Голова:</strong> Синий берет (Blue beret).</li>
+                        <li><strong>Ремень:</strong> Riggers belt (ОБЯЗАТЕЛЬНО кобура 6354DO, Coyote).</li>
+                        <li><strong>Обувь:</strong> Tan.</li>
+                    </ul>
+                    <h4 style="color: white; margin-top: 10px; margin-bottom: 5px;">2. Форма:</h4>
+                    <ul class="custom-list" style="font-size: 13px;">
+                        <li><strong>Top:</strong> G2 AC Field Shirt</li>
+                        <li><strong>Bottom:</strong> G2 AC Field Pants</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Затеняющий фон при открытии панели -->
+            <div id="drawerOverlay" class="drawer-overlay" onclick="toggleUniformDrawer()"></div>
+        </section>
+    
+        <!-- Стили для анимированного слайдера (добавьте в конец <style> или перед </head>) -->
+        <style>
+            .uniform-drawer {
+                position: fixed;
+                top: 0;
+                right: -450px; /* Скрыто за правым краем экрана */
+                width: 400px;
+                height: 100vh;
+                background: #181818;
+                border-left: 2px solid var(--khaki);
+                box-shadow: -10px 0 30px rgba(0,0,0,0.8);
+                z-index: 2000;
+                transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+                padding: 30px;
+                box-sizing: border-box;
+                overflow-y: auto;
+            }
+            .uniform-drawer.open {
+                right: 0; /* Выезжает справа налево */
+            }
+            .drawer-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid #333;
+                padding-bottom: 15px;
+            }
+            .close-btn {
+                font-size: 28px;
+                color: #aaa;
+                cursor: pointer;
+                transition: 0.2s;
+            }
+            .close-btn:hover { color: white; }
+            .drawer-img {
+                width: 100%;
+                border-radius: 10px;
+                border: 1px solid var(--olive);
+                margin-top: 15px;
+            }
+            .drawer-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0,0,0,0.6);
+                backdrop-filter: blur(4px);
+                z-index: 1999;
+                display: none;
+            }
+            .drawer-overlay.active {
+                display: block;
+            }
+        </style>
+    
+        <!-- Функция скрипта для переключения выезжающей панели -->
+        <script>
+            function toggleUniformDrawer() {
+                var drawer = document.getElementById('uniformDrawer');
+                var overlay = document.getElementById('drawerOverlay');
+                drawer.classList.toggle('open');
+                overlay.classList.toggle('active');
+            }
+        </script>
+    
+
+    <footer>
+        <img src="logo.png" alt="SASR Logo">
+        <h4 style="color: var(--text-muted); margin: 0 0 10px 0; font-size: 14px;">WHO DARES WINS</h4>
+        <p>© 2026 SASR Milsim | Unofficial Roblox BRM5 Community</p>
+    </footer>
+
+    <script>
+        function reveal() {
+            var reveals = document.querySelectorAll('.reveal');
+            for(var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100;
+                if(elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add('active');
+                }
+            }
+        }
+        window.addEventListener('scroll', reveal);
+        reveal();
+    </script>
+</body>
+</html>
+
+
+
+
+kmb-uniform.jpg 
